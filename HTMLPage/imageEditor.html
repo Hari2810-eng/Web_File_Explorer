@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Image Editor</title>
+    <style>
+        /* Add your CSS styling here */
+        #image-editor {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #image-preview {
+            max-width: 100%;
+            max-height: 60vh; /* Adjust the max-height as needed */
+        }
+        #cropper-container {
+            width: 100%;
+            max-width: 80%;
+            margin-top: 20px;
+        }
+        #save-button {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="image-editor">
+        <h1>Image Editor</h1>
+        <!-- Modify the src attribute to use the base64 image data -->
+        <img id="image-preview" src="data:image/png;base64,{{base64_image}}" alt="Image Preview">
+        <div id="cropper-container">
+            <button id="crop-button">Crop Image</button>
+            <button id="rotate-left">Rotate Left</button>
+            <button id="rotate-right">Rotate Right</button>
+            <!-- Add more buttons for other editing options -->
+            <button id="save-button">Save Image</button>
+        </div>
+    </div>
+
+    <!-- Include Cropper.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+
+    <script>
+        // Initialize Cropper.js
+        var image = document.getElementById('image-preview');
+        var cropper = new Cropper(image, {
+            aspectRatio: NaN, // Remove aspect ratio constraint
+            autoCropArea: 1,
+            movable: true,
+            zoomable: true,
+            rotatable: true,
+            scalable: false
+        });
+
+        // Example of cropping and exporting the cropped image
+        document.getElementById('crop-button').addEventListener('click', function () {
+            var croppedCanvas = cropper.getCroppedCanvas();
+            var croppedImage = croppedCanvas.toDataURL();
+            console.log(croppedImage);
+            // You can send the croppedImage data to the server for further processing
+        });
+
+        // Example of rotating the image left
+        document.getElementById('rotate-left').addEventListener('click', function () {
+            cropper.rotate(-90);
+        });
+
+        // Example of rotating the image right
+        document.getElementById('rotate-right').addEventListener('click', function () {
+            cropper.rotate(90);
+        });
+
+        // Example of saving the edited image
+        document.getElementById('save-button').addEventListener('click', function () {
+            var croppedCanvas = cropper.getCroppedCanvas();
+            // Convert the cropped canvas to a Blob
+            croppedCanvas.toBlob(function(blob) {
+                // Create a temporary link element
+                var link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                // Set the download attribute with a filename
+                link.download = 'edited_image.png';
+                // Simulate a click on the link to trigger the download
+                link.click();
+            });
+        });
+    </script>
+</body>
+</html>

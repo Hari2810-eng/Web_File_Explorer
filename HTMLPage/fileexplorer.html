@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Explorer</title>
+    <style>
+        .context-menu { display: none; position: absolute; z-index: 1000; width: 150px; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        .context-menu__item { padding: 8px 12px; cursor: pointer; }
+        .context-menu__item:hover { background-color: #f0f0f0; }
+        .download-zip { position: absolute; top: 10px; right: 10px; padding: 10px; background: #007bff; color: white; cursor: pointer; border: none; }
+        .download-zip:hover { background: #0056b3; }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+            document.querySelectorAll('.file').forEach(function(element) {
+                element.addEventListener('contextmenu', function(e) {
+                    e.preventDefault();
+                    var menu = document.getElementById('context-menu');
+                    menu.style.display = 'block';
+                    menu.style.left = e.pageX + 'px';
+                    menu.style.top = e.pageY + 'px';
+                    document.getElementById('open').onclick = function() { openFile(element.getAttribute('data-href')); };
+                    document.getElementById('download').onclick = function() { downloadFile(element.getAttribute('data-href')); };
+                });
+            });
+            document.addEventListener('click', function() { document.getElementById('context-menu').style.display = 'none'; });
+        });
+        function openFile(href) { window.open(href, '_blank'); }
+        function downloadFile(href) { window.location.href = href + '?download=true'; }
+        function downloadZip(href) { window.location.href = href + '?zip=true'; }
+    </script>
+</head>
+<body>
+    <form action="/logout" method="post">
+        <button type="submit">Logout</button>
+    </form>
+    <button class='download-zip' onclick='downloadZip("{{requestURI}}")'>Download as Zip</button>
+    <h1>Files and folders in {{requestURI}}:</h1>
+    <form action="{{requestURI}}" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" />
+        <button type="submit">Upload</button>
+    </form>
+    <ul>
+        {{fileList}}
+    </ul>
+    <div id='context-menu' class='context-menu'>
+        <div id='open' class='context-menu__item'>Open</div>
+        <div id='download' class='context-menu__item'>Download</div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+	    position: relative;
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .create-user-container, .add-path-container {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+	
+	.logout-form {
+            position: absolute; 
+            top: 10px;
+            right: 10px; 
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        a {
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Create User</h2>
+        <div class="create-user-container">
+            <form action="/createUser" method="post">
+                <input type="text" name="username" placeholder="Username" required><br><br>
+                <input type="password" name="password" placeholder="Password" required><br><br>
+                <select name="roleName" required>
+                    <option value="" disabled selected>Select New User Role</option>
+                    <option value="guest">Guest</option>
+                    <option value="technician">Technician</option>
+                </select><br><br>
+                <input type="text" name="filePath" placeholder="Directory" required><br><br>
+                <input type="submit" value="Create New User" onclick="clearForm()">
+            </form>
+        </div>
+        <h2>Add Path to Existing User</h2>
+        <div class="add-path-container">
+            <form action="/addPath" method="post">
+                <input type="text" name="userId" placeholder="User ID" required><br><br>
+                <input type="text" name="username" placeholder="Username" required><br><br>
+                <input type="text" name="filePath" placeholder="Directory" required><br><br>
+                <input type="submit" value="Add Path to User" onclick="clearForm()">
+            </form>
+        </div>
+        <h2>Existing Users</h2>
+        <div class="user-list-container">
+            <table id="userTable">
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Username</th>
+                        <th>Access Paths</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+		  </tbody>
+            </table>
+        </div>
+    </div>
+    <form class="logout-form" action="/logout" method="post">
+        <button type="submit">Logout</button>
+    </form>
+     <script>
+        function fetchUserList() {
+            return fetch('/getUserList')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .catch(error => {
+                    console.error('Error fetching user list:', error);
+                    return []; // Return empty array in case of error
+                });
+        }
+
+        function populateUserTable() {
+            fetchUserList().then(userList => {
+                const tableBody = document.getElementById('userTableBody');
+                tableBody.innerHTML = ''; 
+                userList.forEach(user => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${user.userId}</td>
+                        <td>${user.username}</td>
+                        <td>${user.roleName}</td>
+                        <td>${user.filePath}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            });
+        }
+
+        populateUserTable();
+    </script>
+</body>
+
+</html>
